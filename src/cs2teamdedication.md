@@ -15,8 +15,6 @@ import { overviewGraph } from './cs2teamdedication/overview/plot.js';
 ```
 
 ```js
-const baseProfileData = debuggingInfo.profileBaseWithMatches;
-
 const ordering_1 = "weekStreak";
 const ordering_2 = "gameCountLast5weeks";
 
@@ -44,16 +42,17 @@ const overviewPlot = overviewGraph(overviewData, params);
 view(overviewPlot)
 ```
 
+#### Debuging
+
 ```js
 view(overviewData)
 ```
 
-#### Debuging
-
 ```js
-const debuggingInfo = FileAttachment("cs2teamdedication/data/data/infoForDebugging.json").json();
+// const debuggingInfo = FileAttachment("cs2teamdedication/data/data/infoForDebugging.json").json();
+const baseProfileData = FileAttachment("cs2teamdedication/data/data/profiles_matches.json").json();
 ```
 
 ```js
-debuggingInfo
+// debuggingInfo
 ```
