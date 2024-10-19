@@ -3,6 +3,12 @@ import JSZip from "jszip";
 
 import { PROFILE_LIST, MULTI_PROFILES, dateRounding, gameSort } from './constants.js';
 import { fetchProfiles, fetchMatches } from './fetches.js';
+import { lean_profileBaseWithMatches } from './leandata.js';
+
+// API Secret
+import { config } from 'dotenv';
+config();
+const LEANDATA_MODE = process.env.LEANDATA_MODE === 'True';
 
 async function main() {
 
@@ -98,8 +104,12 @@ async function main() {
                                         .filter(match => profile.allProfiles.some(ap => match.playerStats.some(player => player.steam64Id == ap.id))) // Checking if player was in match
                                         .map(match => ({
                                             ...match,
-                                            profilePlayerStats: match.playerStats.find(player => profile.allProfiles.some(ap => player.steam64Id == ap.id))
+                                            profilePlayerStats: match.playerStats.find(player => profile.allProfiles.some(ap => player.steam64Id == ap.id)),
                                         }))
+                            }))
+                            // Lean data adjustments
+                            .map(profile => ({
+                                ...(LEANDATA_MODE ? lean_profileBaseWithMatches(profile) : profile),
                             }))
 
     // Building the team matches DF
@@ -108,7 +118,7 @@ async function main() {
         ...match
     }))
 
-    infoForDebugging = {...infoForDebugging, profilesBaseDF, profileBaseWithMatches, teamMatchesDF};
+    infoForDebugging = {...(!LEANDATA_MODE && {...infoForDebugging, profilesBaseDF, profileBaseWithMatches, teamMatchesDF})};
 
     // Output a ZIP archive to stdout.
     const zip = new JSZip();
