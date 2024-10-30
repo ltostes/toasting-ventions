@@ -12,9 +12,13 @@ export function overviewGraph(
       insetLeft,
       refDate,
       timerange,
-      teamname
+      teamname,
+      minimunTeamMembers = 2
     }
   ) {
+
+    const image_size = 30;
+    const dx_image = image_size * 0.6;
 
     const fy_domain = [
       teamname,
@@ -29,6 +33,19 @@ export function overviewGraph(
     ];
   
     const x_domain = [refDate, d3.utcDay.offset(refDate, -timerange)];
+
+    const dotConfig = Plot.dodgeY({
+      fy: "name",
+      x: "sessionDate",
+      anchor: 'middle',
+    });
+
+    const flatGamesData = overviewData
+                            .map(
+                              (profile) =>
+                                profile.games.map((g) => ({ ...g, name: profile.name }))
+                            )
+                            .flat();
   
     const plot = Plot.plot({
       width,
@@ -46,20 +63,29 @@ export function overviewGraph(
         domain: fy_domain
       },
       marks: [
-        Plot.dot(
-          overviewData
-            .map(
-              (profile) =>
-                profile.games.map((g) => ({ ...g, name: profile.name }))
-              // .filter(g => isDateWithinRange(g.finishedAt, ))
-            )
-            .flat(),
-          Plot.dodgeY({
+        Plot.image(
+          overviewData,
+          Plot.selectFirst({
             fy: "name",
-            x: "finishedAt",
-            // fill: 'weeksAgo'
+            frameAnchor: "left",
+            src: "avatar",
+            dx: dx_image,
+            height: image_size
           })
-        )
+        ),
+        Plot.dot(
+            flatGamesData
+            .filter(g => g.numTeamMembers >= minimunTeamMembers)
+          , dotConfig 
+        ),
+        Plot.dot(
+            flatGamesData
+            .filter(g => g.numTeamMembers < minimunTeamMembers)
+          , {
+            ...dotConfig,
+            strokeOpacity: 0.2,
+          }
+        ),
       ]
     });
   
