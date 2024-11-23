@@ -1,6 +1,6 @@
 
 export const profileFeatures = ['name','avatar'];
-export const gameFeatures = ['finishedAt', 'numTeamMembers','profilePlayerStats'];
+export const gameFeatures = ['id','finishedAt', 'numTeamMembers','profilePlayerStats'];
 
 export function lean_profileBaseWithMatches(profile) {
     return ({
