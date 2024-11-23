@@ -19,6 +19,7 @@ export function overviewGraph(
 
     const image_size = 30;
     const dx_image = image_size * 0.6;
+    const marginTop = 50;
 
     const fy_domain = [
       teamname,
@@ -51,12 +52,15 @@ export function overviewGraph(
       width,
       height,
       marginLeft,
+      marginTop,
       insetLeft,
       x: {
         type: "utc",
         axis: "top",
         grid: true,
-        domain: x_domain
+        domain: x_domain,
+        labelOffset: 40,
+        label: "Date"
       },
       fy: {
         label: null,
@@ -86,6 +90,31 @@ export function overviewGraph(
             strokeOpacity: 0.2,
           }
         ),
+        // Day ticks
+        Plot.tickX(d3.unixDay.range(x_domain[1], x_domain[0], 1), {
+          strokeOpacity: 0.05,
+        }),
+        // Today marker
+        Plot.dot([0], {
+          frameAnchor: "top-left",
+          fy: (d) => fy_domain[0],
+          height: 2,
+          x: (d) => x_domain[0],
+          symbol: "star",
+          r: 2,
+          dy: -3
+        }),
+        Plot.text([0], {
+          frameAnchor: "top-left",
+          fy: (d) => fy_domain[0],
+          height: 2,
+          x: (d) => x_domain[0],
+          text: (d) => ("Today"),
+          lineAnchor: "bottom",
+          textAnchor: "middle",
+          fontStyle: "italic",
+          dy: -13
+        }),
       ]
     });
   
