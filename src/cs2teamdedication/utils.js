@@ -30,3 +30,10 @@ export function getWeekStreak(gameDates, refDate) {
     return currentStreak;
 }
 
+export function removeDuplicates(array, id="id") {
+    const seen = new Set();
+    return array.filter(item => {
+      const identifier = item[id]; // Replace 'id' with your unique property
+      return seen.has(identifier) ? false : seen.add(identifier);
+    });
+  }

@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as Plot from '@observablehq/plot';
+import { removeDuplicates } from '../utils.js'
 
 export function overviewGraph(
     overviewData,
@@ -13,13 +14,21 @@ export function overviewGraph(
       refDate,
       timerange,
       teamname,
-      minimunTeamMembers = 2
+      minimunTeamMembers = 3
     }
   ) {
 
     const image_size = 30;
     const dx_image = image_size * 0.6;
     const marginTop = 50;
+
+    const teamData = {name: teamname, 
+                      games: removeDuplicates(
+                              overviewData.reduce((current, next) => [...current, ...next.games], 
+                                                  [])
+                              )
+                              .filter(f => f.numTeamMembers >= minimunTeamMembers)
+                      }
 
     const fy_domain = [
       teamname,
@@ -41,12 +50,14 @@ export function overviewGraph(
       anchor: 'middle',
     });
 
-    const flatGamesData = overviewData
-                            .map(
-                              (profile) =>
-                                profile.games.map((g) => ({ ...g, name: profile.name }))
-                            )
-                            .flat();
+    function flattenGamesData(profilesData) {
+      return profilesData
+        .map(
+          (profile) =>
+            profile.games.map((g) => ({ ...g, name: profile.name }))
+        )
+        .flat();
+    }
   
     const plot = Plot.plot({
       width,
@@ -77,13 +88,29 @@ export function overviewGraph(
             height: image_size
           })
         ),
+        // Team games
         Plot.dot(
-            flatGamesData
-            .filter(g => g.numTeamMembers >= minimunTeamMembers)
-          , dotConfig 
+          flattenGamesData([teamData])
+          , 
+            {
+              ...dotConfig,
+              fill: 'purple',
+              r: 3.5
+            }
         ),
+        // Player games in team 
         Plot.dot(
-            flatGamesData
+          flattenGamesData(overviewData)
+            .filter(g => g.numTeamMembers >= minimunTeamMembers)
+          , 
+            {
+              ...dotConfig,
+              fill: true,
+            }
+        ),
+        // Player games without team
+        Plot.dot(
+          flattenGamesData(overviewData)
             .filter(g => g.numTeamMembers < minimunTeamMembers)
           , {
             ...dotConfig,
@@ -104,6 +131,7 @@ export function overviewGraph(
           r: 2,
           dy: -3
         }),
+        // Today marker (text)
         Plot.text([0], {
           frameAnchor: "top-left",
           fy: (d) => fy_domain[0],
@@ -118,5 +146,5 @@ export function overviewGraph(
       ]
     });
   
-    return plot;
+    return [plot, teamData];
   }

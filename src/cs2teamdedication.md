@@ -36,7 +36,7 @@ const params = {
 };
 
 const overviewData = overviewFeatures(baseProfileData, params);
-const overviewPlot = overviewGraph(overviewData, params);
+const [overviewPlot, plotDebug] = overviewGraph(overviewData, params);
 
 // return overviewData;
 view(overviewPlot)
@@ -45,6 +45,7 @@ view(overviewPlot)
 #### Debuging
 
 ```js
+view(plotDebug)
 view(overviewData)
 ```
 
